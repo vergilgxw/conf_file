@@ -67,10 +67,12 @@ endif
 " }}}
 " "===================================================="
 " gui cursor (for cygwin only) {{{
-"let &t_ti.="\e[1 q"
-"let &t_SI.="\e[5 q"
-"let &t_EI.="\e[1 q"
-"let &t_te.="\e[0 q"
+if has("win32")
+    let &t_ti.="\e[1 q"
+    let &t_SI.="\e[5 q"
+    let &t_EI.="\e[1 q"
+    let &t_te.="\e[0 q"
+endif
 
 "}}}
 " "===================================================="
@@ -150,20 +152,27 @@ set background=dark
 "let g:gruvbox_contrast_dark='soft'
 " Enable italic 
 let g:gruvbox_italic=1
-" following is for gnome terminal
-if $COLORTERM == 'gnome-terminal'
-    " set 256 color mode (or the colors crash)
-    set t_Co=256
+
+if has("win32")
     let g:rehash256=1
-    " add them to italic line to get gnome-terminal italic support
-    " if not, the italic lines will be very strange background color
-    " the character  should be added by typing ctrl+v+esc (disable win mode
-    " to avoid ctrl+v paste) or just \e[
-    "set t_ZH=[3m
-    set t_ZH="\e[[3m"
-    set t_ZR="\e[[23m"
-    "set t_ZR=[23m
-    "highlight Comment cterm=italic
+else
+    if has("unix")
+	" following is for gnome terminal
+	if $COLORTERM == 'gnome-terminal'
+	    " set 256 color mode (or the colors crash)
+	    set t_Co=256
+	    let g:rehash256=1
+	    " add them to italic line to get gnome-terminal italic support
+	    " if not, the italic lines will be very strange background color
+	    " the character  should be added by typing ctrl+v+esc (disable win mode
+	    " to avoid ctrl+v paste) 
+	    set t_ZH=[3m
+	    "set t_ZH="\e[[3m"
+	    "set t_ZR="\e[[23m"
+	    set t_ZR=[23m
+	    "highlight Comment cterm=italic
+	endif
+    endif
 endif
 colorscheme gruvbox 
 " }}}
@@ -187,7 +196,9 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_tex_checkers=[]
 
 "set cygwin path
-"let g:cygwin_path = 'D:\cygwin64'
+if has("win32")
+    let g:cygwin_path = 'D:\cygwin64'
+endif
 " }}}
 " "===================================================="
 "neocomplache {{{
@@ -312,15 +323,17 @@ set shellslash
 set grepprg=grep\ -nH\ $* 
 let g:tex_flavor='latex'
 
-"function! s:AltEscape( ) 
-    "let c='a'
-    "while c <= 'z'
-	"exec "set <A-".c.">=\e".c
-	"exec "imap \e".c." <A-".c.">"
-	"let c = nr2char(1+char2nr(c))
-    "endw
-    "set timeout ttimeoutlen=50    
-"endfunction
+if has("win32")
+    function! s:AltEscape( ) 
+	let c='a'
+	while c <= 'z'
+	    exec "set <A-".c.">=\e".c
+	    exec "imap \e".c." <A-".c.">"
+	    let c = nr2char(1+char2nr(c))
+	endw
+	set timeout ttimeoutlen=50    
+    endfunction
+endif
 
 autocmd Filetype tex set spell | call <SID>AltEscape() | map j gj | map k gk
 autocmd Filetype tex source ~/.vim/myauctex.vim
